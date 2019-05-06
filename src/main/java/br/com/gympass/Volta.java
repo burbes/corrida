@@ -1,6 +1,6 @@
 package br.com.gympass;
 
-import static br.com.gympass.ConversorLinha.calculaTempoVoltaEmSegundos;
+import static br.com.gympass.ConversorLinha.calculaTempoVolta;
 import static java.time.LocalTime.parse;
 import static java.time.format.DateTimeFormatter.ofPattern;
 
@@ -19,7 +19,7 @@ public class Volta {
   public Volta(String horaLap, String numVolta, String tempoLap, String velMedia, String nomePiloto, String codCorredor) {
     this.hora = parse(horaLap, ofPattern("HH:mm:ss.SSS"));
     this.numVolta = Integer.valueOf(numVolta);
-    this.tempoVolta = calculaTempoVoltaEmSegundos(tempoLap);
+    this.tempoVolta = calculaTempoVolta(tempoLap);
     this.velocidadeMedia = Double.valueOf(velMedia.replace(",", "."));
     this.nomeCorredor = nomePiloto;
     this.codCorredor = Long.valueOf(codCorredor);

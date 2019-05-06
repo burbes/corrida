@@ -1,9 +1,14 @@
 package br.com.gympass;
 
+import static br.com.gympass.RegexConstants.REGEX_HORA;
+import static br.com.gympass.RegexConstants.REGEX_NOME_PILOTO;
+import static br.com.gympass.RegexConstants.REGEX_NUM_PILOTO;
+import static br.com.gympass.RegexConstants.REGEX_NUM_VOLTA;
+import static br.com.gympass.RegexConstants.REGEX_TEMPO_VOLTA;
+import static br.com.gympass.RegexConstants.REGEX_VELOCIDADE_MEDIA_VOLTA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readAllLines;
 import static java.nio.file.Paths.get;
-import static java.util.Collections.emptyList;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -14,17 +19,9 @@ import java.util.stream.Collectors;
 
 public class ConversorLinha {
 
-  private static final String REGEX_ESPACO_EM_BRANCO = "\\s";
-  private static final String REGEX_NUM_PILOTO = REGEX_ESPACO_EM_BRANCO + "(\\d{3})" + REGEX_ESPACO_EM_BRANCO;
-  private static final String REGEX_NOME_PILOTO = REGEX_ESPACO_EM_BRANCO + "([.A-Z]+)" + REGEX_ESPACO_EM_BRANCO;
-  private static final String REGEX_NUM_VOLTA = REGEX_ESPACO_EM_BRANCO + "(\\d{1,2})" + REGEX_ESPACO_EM_BRANCO;
-  private static final String REGEX_HORA = "(\\d{2}\\:\\d{2}\\:\\d{2}\\.\\d{3})";
-  private static final String REGEX_TEMPO_VOLTA = REGEX_ESPACO_EM_BRANCO + "(\\d{0,1}\\:?\\d{2}\\.\\d{1,3})";
-  private static final String REGEX_VELOCIDADE_MEDIA_VOLTA = "(\\d{1,3}\\,\\d{0,3})";
-
   private List<String> lines;
 
-  public ConversorLinha(String fileName) {
+  public ConversorLinha(String fileName) throws IOException {
     this.lines = this.readFileInList(fileName);
   }
 
@@ -43,7 +40,7 @@ public class ConversorLinha {
         .collect(Collectors.toList());
   }
 
-  public static Duration calculaTempoVoltaEmSegundos(String tempoVolta) {
+  public static Duration calculaTempoVolta(String tempoVolta) {
 
     Integer segundosMinuto = Integer.valueOf(getValueByRegex(tempoVolta, "(\\d{0,1})\\:", 1)) * 60;
     Integer segundosSegundos = Integer.valueOf(getValueByRegex(tempoVolta, "(\\d{2})\\.", 1));
@@ -70,14 +67,14 @@ public class ConversorLinha {
   }
 
 
-  private List<String> readFileInList(String fileName) {
+  private List<String> readFileInList(String fileName) throws IOException {
 
-    List<String> lines = emptyList();
+    List<String> lines;
 
     try {
       lines = readAllLines(get(fileName), UTF_8);
     } catch (IOException e) {
-      System.err.println("Não foi possivel converter em linhas");
+      throw new IOException("Could not be possible to parse the file");
     }
 
     return lines;

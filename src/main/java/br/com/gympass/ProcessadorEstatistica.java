@@ -6,6 +6,9 @@ import static java.time.Duration.ofSeconds;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.isNull;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProcessadorEstatistica {
 
+  private static final BigDecimal FATOR_METROS_POR_SEGUNDO = new BigDecimal(3.6f);
   private Map<Long, Estatistica> estatisticas = new HashMap<>();
   private List<Volta> voltas;
 
@@ -60,11 +64,12 @@ public class ProcessadorEstatistica {
           }
 
           //velocidade media total
-          float distanciaVoltaEmMetros = ((volta.getTempoVolta().getSeconds()) + (volta.getTempoVolta().getNano() * 1e-9f)) * ((volta.getVelocidadeMedia().longValue()) / 3.6f);
-          float distanciaTotalEmMetros = distanciaVoltaEmMetros * estatistica.getQtdeVoltas().floatValue();
-          float velocidadeMediaTotalEmMetros = distanciaTotalEmMetros / (estatistica.getTempoTotalProva().getSeconds() + (estatistica.getTempoTotalProva().getNano() * 1e-9f));
-          Double velocidadeMediaProvaKmph = Double.valueOf(velocidadeMediaTotalEmMetros * 3.6f);
-          estatistica.setVelocidadeMediaProva(velocidadeMediaProvaKmph);
+          BigDecimal distanciaVoltaEmMetros = (new BigDecimal(volta.getTempoVolta().getSeconds()).add(new BigDecimal(volta.getTempoVolta().getNano() * 1e-9f)) ).multiply((new BigDecimal(volta.getVelocidadeMedia()).divide(FATOR_METROS_POR_SEGUNDO, RoundingMode.HALF_UP)));
+          BigDecimal distanciaTotalEmMetros = distanciaVoltaEmMetros.multiply(new BigDecimal(estatistica.getQtdeVoltas()));
+          BigDecimal velocidadeMediaTotalEmMetros = distanciaTotalEmMetros.divide(new BigDecimal(estatistica.getTempoTotalProva().getSeconds()).add(new BigDecimal(estatistica.getTempoTotalProva().getNano() * 1e-9f)), RoundingMode.HALF_UP);
+          BigDecimal velocidadeMediaProvaKmph = velocidadeMediaTotalEmMetros.multiply(FATOR_METROS_POR_SEGUNDO);
+
+          estatistica.setVelocidadeMediaProva(velocidadeMediaProvaKmph.doubleValue());
         });
 
     //posicionando corredores e definindo dif de tempo
@@ -112,13 +117,14 @@ public class ProcessadorEstatistica {
 
   public static String formatDuration(Duration duration) {
     long seconds = duration.getSeconds();
+    long nanos = duration.getNano();
     long absSeconds = abs(seconds);
-    String positive = format(
-        "%d:%02d:%02d",
+    return format(
+        "%d:%02d:%02d:%03d",
         absSeconds / 3600,
         (absSeconds % 3600) / 60,
-        absSeconds % 60);
-    return seconds < 0 ? "-" + positive : positive;
+        absSeconds % 60,
+        nanos);
   }
 
 }

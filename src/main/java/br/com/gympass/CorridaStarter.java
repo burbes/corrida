@@ -5,11 +5,10 @@ import java.util.List;
 
 public class CorridaStarter {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
 
     if (args == null || args.length == 0 || args[0].trim().isEmpty()) {
-      System.err.println("Não foi possivel encontrar corrida");
-      return;
+      throw new Exception("File not found");
     }
 
     String caminhoArquivo = Paths.get(args[0]).toString();
