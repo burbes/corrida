@@ -6,7 +6,7 @@ Algumas observações:
 - Fiz alguns testes apenas para garantir a integridade dos dados. Subestimei o tamanho do projeto e não consegui fazer mais testes com relação aos resultados, mas deu para garantir o input.
 
 		
-Para rodar a aplicação, você pode rodar diretamente pela IDE rodando a classe principal `CorridaStarter.java` ou basta executar na linha de comando (utilizando maven):
+Para rodar a aplicação, basta executar na linha de comando (utilizando maven):
 
 `mvn clean package exec:java`
 
